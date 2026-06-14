@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MT/Kandenuwara Tamil Maha Vidyalaya - 2026 Marks Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="./data.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+body {
+  background: #f0f2f5;
+  min-height: 100%;
+}
+
+/* Animated Background */
+.login-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.login-overlay::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(114, 98, 204, 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(72, 160, 224, 0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+  animation: bgShift 12s ease-in-out infinite;
+}
+
+@keyframes bgShift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(2%, -2%) rotate(1deg); }
+  66% { transform: translate(-2%, 2%) rotate(-1deg); }
+}
+
+.login-box {
+  position: relative;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 24px;
+  padding: 45px 40px 35px;
+  width: 360px;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  text-align: center;
+  animation: fadeSlide 0.6s ease-out;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* School Logo SVG */
+.login-box .logo-wrap {
+  width: 100px; height: 100px;
+  margin: 0 auto 18px;
+  position: relative;
+}
+
+.login-box .logo-wrap svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.login-box h2 {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.login-box .sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 11px;
+  margin-bottom: 24px;
+  letter-spacing: 0.2px;
+}
+
+.login-box .field-wrap {
+  position: relative;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.login-box .field-wrap label {
+  display: block;
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  padding-left: 2px;
+}
+
+.login-box .field-wrap .input-icon {
+  position: absolute;
+  left: 14px;
+  bottom: 13px;
+  color: rgba(255,255,255,0.3);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 13px 15px 13px 40px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  backdrop-filter: blur(4px);
+  transition: all 0.25s ease;
+}
+
+.login-box input::placeholder { color: rgba(255,255,255,0.3); }
+.login-box input:focus {
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 0 20px rgba(255,255,255,0.05);
+}
+
+.login-box button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-box button:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.15));
+  box-shadow: 0 8px 30px rgba(255,255,255,0.08);
+  transform: translateY(-1px);
+}
+
+.login-box button:active {
+  transform: translateY(0);
+}
+
+.login-box .error {
+  color: #ff8a80;
+  font-size: 12px;
+  margin-top: 10px;
+  display: none;
+  background: rgba(255, 138, 128, 0.1);
+  border: 1px solid rgba(255, 138, 128, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.header { background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; }
+.header .header-left { flex: 1; }
+.header .header-left h1 { font-size: 22px; }
+.header .header-left p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+.header .header-right { display: flex; align-items: center; gap: 14px; }
+.session-timer { font-size: 12px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 8px; letter-spacing: 0.3px; border: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+.session-timer.warn { color: #ff8a80; border-color: rgba(255,138,128,0.3); background: rgba(255,138,128,0.1); }
+.btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 18px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; letter-spacing: 0.3px; white-space: nowrap; }
+.btn-logout:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.35); }
+.controls { background: white; padding: 15px 30px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+.controls input, .controls select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+.controls input { flex: 1; min-width: 180px; }
+.controls select { min-width: 120px; }
+.controls label { font-weight: 600; font-size: 13px; color: #555; }
+.stats-bar { display: flex; flex-wrap: wrap; gap: 12px; padding: 15px 30px; background: white; border-bottom: 1px solid #eee; }
+.stat-card { background: #f8f9ff; border-radius: 8px; padding: 10px 18px; text-align: center; min-width: 100px; border: 1px solid #e0e3f0; }
+.stat-card .num { font-size: 22px; font-weight: 700; color: #1a237e; }
+.stat-card .lbl { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.charts-row { display: flex; flex-wrap: wrap; gap: 15px; padding: 15px 30px; background: white; border-bottom: 1px solid #eee; }
+.chart-box { flex: 1; min-width: 280px; height: 260px; position: relative; }
+.chart-box canvas { width: 100% !important; height: 100% !important; }
+.table-wrap { padding: 15px 30px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: #1a237e; color: white; padding: 8px 6px; text-align: center; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+td { padding: 5px 6px; text-align: center; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
+tr:nth-child(even) { background: #f8f9ff; }
+tr:hover { background: #e8eaf6; }
+tr.absent td { background: #fff3e0; }
+.pass { color: #2e7d32; font-weight: 700; }
+.fail { color: #c62828; font-weight: 700; }
+.ab { color: #e65100; font-style: italic; font-weight: 600; }
+.rank-1 { background: #fff9c4 !important; }
+.rank-top3 { background: #fff8e1 !important; }
+.rank-badge { display: inline-block; border-radius: 50%; width: 28px; height: 28px; line-height: 28px; text-align: center; font-weight: 700; font-size: 12px; color: #fff; }
+.rank-gold { background: linear-gradient(135deg, #f57f17, #ffb300); box-shadow: 0 1px 4px rgba(245,127,23,0.4); }
+.rank-silver { background: linear-gradient(135deg, #546e7a, #90a4ae); box-shadow: 0 1px 4px rgba(84,110,122,0.4); }
+.rank-bronze { background: linear-gradient(135deg, #6d4c41, #a1887f); box-shadow: 0 1px 4px rgba(109,76,65,0.4); }
+.count-badge { display: inline-block; background: #e8eaf6; color: #1a237e; border-radius: 10px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+.perf-label { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.3px; }
+.perf-excellent { background: #1b5e20; color: #fff; }
+.perf-good { background: #2e7d32; color: #fff; }
+.perf-average { background: #f9a825; color: #fff; }
+.perf-below { background: #e65100; color: #fff; }
+.perf-poor { background: #b71c1c; color: #fff; }
+.avg-bar-wrap { display: inline-block; width: 60px; height: 6px; background: #e0e0e0; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+.avg-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.absent-icon { display: inline-block; background: #fff3e0; color: #e65100; border-radius: 50%; width: 22px; height: 22px; line-height: 22px; font-size: 11px; font-weight: 700; text-align: center; }
+.subject-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px; }
+.subject-dot-pass { background: #43a047; }
+.subject-dot-fail { background: #e53935; }
+.subject-dot-ab { background: #ff9800; }
+td.name-cell { position: relative; }
+.clickable { cursor: pointer; }
+.student-detail-popup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+.student-detail-popup.active { display: flex; }
+.popup-content { background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+.popup-content h2 { margin-bottom: 4px; color: #1a237e; }
+.popup-content .subtitle { color: #666; font-size: 13px; margin-bottom: 16px; }
+.popup-close { float: right; font-size: 24px; cursor: pointer; color: #999; }
+.popup-close:hover { color: #333; }
+.popup-subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.popup-subject-item { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+.popup-subject-item.p { background: #e8f5e9; }
+.popup-subject-item.f { background: #ffebee; }
+.popup-subject-item.a { background: #fff3e0; }
+.popup-subject-item .subj { font-weight: 600; }
+.popup-subject-item .mark { font-weight: 700; }
+.popup-stats { display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
+.popup-stat { flex: 1; min-width: 80px; background: #f5f5f5; border-radius: 8px; padding: 10px; text-align: center; }
+.popup-stat .val { font-size: 20px; font-weight: 700; color: #1a237e; }
+.popup-stat .lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.3px; }
+.grade-badge { display: inline-block; background: #e8eaf6; color: #1a237e; border-radius: 4px; padding: 1px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+.no-result { text-align: center; padding: 40px; color: #999; font-size: 16px; }
+.search-highlight { background: #ffeb3b; padding: 0 2px; }
+.subject-pass { background: #e8f5e9; }
+.subject-fail { background: #ffebee; }
+.pass-bar { background: linear-gradient(90deg, #43a047, #66bb6a); height: 6px; border-radius: 3px; }
+.fail-bar { background: linear-gradient(90deg, #e53935, #ef5350); height: 6px; border-radius: 3px; }
+@media print { .controls, .charts-row { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fdd835"/>
+            <stop offset="100%" stop-color="#f9a825"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fff"/>
+            <stop offset="100%" stop-color="#e0e0e0"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="46" fill="url(#lg)" stroke="#fff" stroke-width="2"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+        <text x="50" y="36" text-anchor="middle" font-size="24" font-weight="900" fill="#5d4037" font-family="Arial">KTMV</text>
+        <text x="50" y="58" text-anchor="middle" font-size="8" font-weight="700" fill="#5d4037" font-family="Arial" letter-spacing="2">EST. 1982</text>
+        <path d="M25 72 Q50 60 75 72" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <circle cx="38" cy="68" r="2.5" fill="#fff" opacity="0.5"/>
+        <circle cx="62" cy="68" r="2.5" fill="#fff" opacity="0.5"/>
+      </svg>
+    </div>
+    <h2>School Login</h2>
+    <p class="sub">MT/Kandenuwara Tamil Maha Vidyalaya</p>
+    <div class="field-wrap">
+      <label>Username</label>
+      <span class="input-icon">&#x1F464;</span>
+      <input type="text" id="loginUser" placeholder="Enter username">
+    </div>
+    <div class="field-wrap">
+      <label>Password</label>
+      <span class="input-icon">&#x1F512;</span>
+      <input type="password" id="loginPass" placeholder="Enter password">
+    </div>
+    <button onclick="handleLogin()">Sign In</button>
+    <div class="error" id="loginError">&#x26A0; Invalid username or password</div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>&#x1F4DA; MT/Kandenuwara Tamil Maha Vidyalaya - 2026 Marks Dashboard</h1>
+    <p>First Term Examination - Interactive Student Search &amp; Analysis</p>
+  </div>
+  <div class="header-right">
+    <span class="session-timer" id="sessionTimer">Session: 5:00</span>
+    <button class="btn-logout" onclick="handleLogout()">&#x2192; Logout</button>
+  </div>
+</div>
+
+<div class="controls">
+  <label for="search">&#x1F50D; Search</label>
+  <input type="text" id="search" placeholder="Type name or index number..." oninput="filterData()">
+  <label for="gradeFilter">Grade</label>
+  <select id="gradeFilter" onchange="filterData()">
+    <option value="ALL">All Grades</option>
+  </select>
+  <select id="subjectFilter" onchange="filterData()">
+    <option value="ALL">All Subjects</option>
+  </select>
+  <label><input type="checkbox" id="showStats" checked onchange="toggleStats()"> Show Stats</label>
+  <label><input type="checkbox" id="showCharts" checked onchange="toggleCharts()"> Charts</label>
+</div>
+
+<div id="statsSection" class="stats-bar"></div>
+<div id="chartsSection" class="charts-row">
+  <div class="chart-box"><canvas id="subjectChart"></canvas></div>
+  <div class="chart-box"><canvas id="gradeChart"></canvas></div>
+  <div class="chart-box"><canvas id="passChart"></canvas></div>
+</div>
+
+<div class="table-wrap">
+  <div id="resultInfo" style="font-size:13px;color:#666;margin-bottom:8px;"></div>
+  <div id="tableContainer"></div>
+</div>
+
+<script>
+const SUBJECTS = ['TAMIL','MATHS','SCIENCE','ENGLISH','HISTORY','GEOGRAPHY','CIVICS','SAIVAM','RC','ISLAM','PTS','HPE','ART','MUSIC','SINHALA','IT','COMMERCE'];
+const PASS_THRESHOLD = 40;
+const GRADE_ORDER = {
+  'GRADE6':1,
+  'GRADE7A':2, 'GRADE7B':3,
+  'GRADE8A':4,
+  'GRADE9':5,
+  'GRADE10A':6, 'GRADE-10B':7,
+  'GRADE11':8, 'NW 10B':9
+};
+
+function getGradeLabel(g) {
+  const m = {
+    'GRADE6':'06',
+    'GRADE7A':'07A', 'GRADE7B':'07B',
+    'GRADE8A':'08A',
+    'GRADE9':'09',
+    'GRADE10A':'10A', 'GRADE-10B':'10B',
+    'GRADE11':'11', 'NW 10B':'NW10B'
+  };
+  return m[g] || g;
+}
+
+function getGrades() {
+  if (typeof allStudents === 'undefined') return [];
+  const grades = [...new Set(allStudents.map(s => s.grade))];
+  return grades.sort((a, b) => (GRADE_ORDER[a] || 99) - (GRADE_ORDER[b] || 99));
+}
+function getSubjects(s) {
+  return SUBJECTS.filter(sub => s[sub] !== undefined && s[sub] !== '');
+}
+
+function parseMark(v) {
+  if (v === undefined || v === null || v === '' || v.toString().toLowerCase() === 'ab') return NaN;
+  return parseFloat(v);
+}
+
+function isAbsent(s) {
+  const subs = getSubjects(s);
+  if (subs.length === 0) return true;
+  return subs.every(sub => {
+    const v = s[sub];
+    return v === undefined || v === '' || v === null || v.toString().toLowerCase() === 'ab';
+  });
+}
+
+function getPassCount(s) {
+  let pass = 0, total = 0;
+  getSubjects(s).forEach(sub => {
+    const m = parseMark(s[sub]);
+    if (!isNaN(m)) { total++; if (m >= PASS_THRESHOLD) pass++; }
+  });
+  return { pass, total };
+}
+
+// Login handling
+function handleLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if (user === 'KTMV' && pass === 'admin123') {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    startSessionTimer();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('loginOverlay').style.display !== 'none') handleLogin();
+});
+
+// Logout
+function handleLogout() {
+  stopSessionTimer();
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// Session timeout
+let sessionTimerId = null;
+let sessionCountdown = 300;
+const SESSION_DURATION = 300;
+
+function startSessionTimer() {
+  sessionCountdown = SESSION_DURATION;
+  updateTimerDisplay();
+  sessionTimerId = setInterval(function() {
+    sessionCountdown--;
+    updateTimerDisplay();
+    if (sessionCountdown <= 0) {
+      handleLogout();
+    }
+  }, 1000);
+}
+
+function stopSessionTimer() {
+  if (sessionTimerId) { clearInterval(sessionTimerId); sessionTimerId = null; }
+}
+
+function resetSessionTimer() {
+  sessionCountdown = SESSION_DURATION;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('sessionTimer');
+  if (!el) return;
+  const m = Math.floor(sessionCountdown / 60);
+  const s = sessionCountdown % 60;
+  el.textContent = 'Session: ' + m + ':' + (s < 10 ? '0' : '') + s;
+  el.classList.toggle('warn', sessionCountdown <= 60);
+}
+
+// Activity listener to reset timer on user interaction
+(function() {
+  function onActivity() {
+    if (sessionTimerId !== null && sessionCountdown > 0) {
+      resetSessionTimer();
+    }
+  }
+  var events = ['mousedown', 'keydown', 'touchstart', 'mousemove', 'scroll', 'click'];
+  for (var i = 0; i < events.length; i++) {
+    document.addEventListener(events[i], onActivity);
+  }
+})();
+
+// Load data safely with check mechanism for online deployments
+(function init() {
+  const container = document.getElementById('tableContainer');
+  
+  // Fail-safe protection if data.js is missing or failing on GitHub Pages
+  if (typeof allStudents === 'undefined') {
+    container.innerHTML = '<div class="no-result" style="color: #b71c1c; font-weight: bold;">&#x26A0; Error: Could not find "allStudents" data profile array. Verify that data.js exists inside your GitHub folder repository and is properly spelled.</div>';
+    return;
+  }
+
+  const gf = document.getElementById('gradeFilter');
+  const grades = getGrades();
+  grades.forEach(g => {
+    const o = document.createElement('option');
+    o.value = g;
+    o.textContent = getGradeLabel(g);
+    gf.appendChild(o);
+  });
+  const sf = document.getElementById('subjectFilter');
+  SUBJECTS.forEach(sub => {
+    const o = document.createElement('option');
+    o.value = sub;
+    o.textContent = sub;
+    sf.appendChild(o);
+  });
+  filterData();
+})();
+
+function filterData() {
+  if (typeof allStudents === 'undefined') return;
+
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const grade = document.getElementById('gradeFilter').value;
+  const subject = document.getElementById('subjectFilter').value;
+
+  let filtered = allStudents;
+  if (grade !== 'ALL') filtered = filtered.filter(s => s.grade === grade);
+  if (q) {
+    filtered = filtered.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.indexNo.toLowerCase().includes(q) ||
+      getGradeLabel(s.grade).toLowerCase().includes(q)
+    );
+  }
+
+  filtered.sort((a, b) => (GRADE_ORDER[a.grade] || 99) - (GRADE_ORDER[b.grade] || 99));
+
+  renderTable(filtered, q, subject);
+  updateStats(filtered);
+  updateCharts(filtered, subject);
+}
+
+function renderTable(students, q, subjectFilter) {
+  const container = document.getElementById('tableContainer');
+  const info = document.getElementById('resultInfo');
+  if (students.length === 0) {
+    container.innerHTML = '<div class="no-result">&#x1F50D; No students found</div>';
+    info.textContent = '0 students';
+    return;
+  }
+
+  const activeSubjects = new Set();
+  students.forEach(s => getSubjects(s).forEach(sub => activeSubjects.add(sub)));
+  let subs = SUBJECTS.filter(s => activeSubjects.has(s));
+  if (subjectFilter !== 'ALL') subs = [subjectFilter];
+
+  info.textContent = students.length + ' student(s) found';
+
+  let html = '<table><thead><tr><th>#</th><th>Index</th><th>Name</th><th>Grade</th><th>Rating</th>';
+  subs.forEach(sub => { html += '<th>' + sub + '</th>'; });
+  html += '<th>Total</th><th>Avg</th><th>Pass</th><th>Rank</th></tr></thead><tbody>';
+
+  students.forEach((s, idx) => {
+    const abs = isAbsent(s);
+    const rankVal = s.RANK ? parseInt(s.RANK) : 0;
+    
+    let total = 0, count = 0;
+    const subMarks = [];
+    subs.forEach(sub => {
+      const v = s[sub];
+      const m = parseMark(v);
+      subMarks.push({ sub, v, m });
+      if (!isNaN(m)) { total += m; count++; }
+    });
+    const avg = count > 0 ? (total / count) : 0;
+    const pc = getPassCount(s);
+    const perfLabel = avg >= 80 ? 'Excellent' : avg >= 60 ? 'Good' : avg >= 40 ? 'Average' : avg >= 20 ? 'Below Avg' : 'Poor';
+    const perfClass = avg >= 80 ? 'perf-excellent' : avg >= 60 ? 'perf-good' : avg >= 40 ? 'perf-average' : avg >= 20 ? 'perf-below' : 'perf-poor';
+    const avgPct = Math.min(avg, 100);
+
+    html += '<tr' + (abs ? ' class="absent"' : '') + '>';
+    html += '<td>' + (idx + 1) + '</td>';
+    html += '<td>' + escHtml(s.indexNo) + '</td>';
+    html += '<td style="text-align:left;font-weight:600;" class="name-cell" onclick="showDetail(\'' + escHtml(s.indexNo) + '\')">' + highlight(escHtml(s.name), q) + '</td>';
+    html += '<td><span class="grade-badge">' + getGradeLabel(s.grade) + '</span></td>';
+
+    // Rating column
+    if (abs) {
+      html += '<td><span class="absent-icon">A</span></td>';
+    } else if (count > 0) {
+      const barColor = avg >= 60 ? '#43a047' : avg >= 40 ? '#f9a825' : '#e53935';
+      html += '<td><div class="avg-bar-wrap"><div class="avg-bar-fill" style="width:' + avgPct + '%;background:' + barColor + '"></div></div><span class="perf-label ' + perfClass + '">' + perfLabel + '</span></td>';
+    } else {
+      html += '<td>-</td>';
+    }
+
+    // Subject marks with dots
+    subMarks.forEach(sm => {
+      if (sm.v !== undefined && sm.v !== '') {
+        if (sm.v.toString().toLowerCase() === 'ab') {
+          html += '<td><span class="subject-dot subject-dot-ab"></span><span class="ab">ab</span></td>';
+        } else if (!isNaN(sm.m)) {
+          const cls = sm.m >= PASS_THRESHOLD ? 'pass' : 'fail';
+          html += '<td class="' + cls + '">' + sm.m + '</td>';
+        } else {
+          html += '<td>-</td>';
+        }
+      } else {
+        html += '<td>-</td>';
+      }
+    });
+
+    html += '<td><strong>' + total + '</strong></td>';
+    html += '<td>' + (count > 0 ? avg.toFixed(1) : '-') + '</td>';
+    html += '<td><span class="count-badge">' + pc.pass + '/' + pc.total + '</span></td>';
+
+    // Rank with badge
+    if (rankVal === 1) html += '<td><span class="rank-badge rank-gold">1</span></td>';
+    else if (rankVal === 2) html += '<td><span class="rank-badge rank-silver">2</span></td>';
+    else if (rankVal === 3) html += '<td><span class="rank-badge rank-bronze">3</span></td>';
+    else html += '<td>' + (s.RANK || '-') + '</td>';
+
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function highlight(text, q) {
+  if (!q) return text;
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return text.replace(re, '<span class="search-highlight">$1</span>');
+}
+
+function updateStats(students) {
+  const section = document.getElementById('statsSection');
+  if (!document.getElementById('showStats').checked) { section.style.display = 'none'; return; }
+  section.style.display = 'flex';
+
+  const total = students.length;
+  let totalMarks = 0, markCount = 0, passCount = 0, subjCount = 0;
+  students.forEach(s => {
+    const pc = getPassCount(s);
+    passCount += pc.pass;
+    subjCount += pc.total;
+    getSubjects(s).forEach(sub => {
+      const m = parseMark(s[sub]);
+      if (!isNaN(m)) { totalMarks += m; markCount++; }
+    });
+  });
+
+  section.innerHTML = '';
+  const cards = [
+    { num: total, lbl: 'Students' },
+    { num: markCount > 0 ? (totalMarks / markCount).toFixed(1) : 0, lbl: 'Avg Marks' },
+    { num: subjCount > 0 ? (passCount / subjCount * 100).toFixed(1) + '%' : '0%', lbl: 'Pass Rate' },
+    { num: total > 0 ? (markCount / total).toFixed(1) : 0, lbl: 'Avg Subjects/Student' },
+  ];
+  cards.forEach(c => {
+    section.innerHTML += '<div class="stat-card"><div class="num">' + c.num + '</div><div class="lbl">' + c.lbl + '</div></div>';
+  });
+}
+
+let chart1 = null, chart2 = null, chart3 = null;
+
+function updateCharts(students, subjectFilter) {
+  if (!document.getElementById('showCharts').checked) {
+    document.getElementById('chartsSection').style.display = 'none';
+    return;
+  }
+  document.getElementById('chartsSection').style.display = 'flex';
+
+  // Chart 1: Subject-wise average
+  const subAverages = {};
+  const subCounts = {};
+  students.forEach(s => {
+    getSubjects(s).forEach(sub => {
+      const m = parseMark(s[sub]);
+      if (!isNaN(m)) {
+        if (!subAverages[sub]) { subAverages[sub] = 0; subCounts[sub] = 0; }
+        subAverages[sub] += m;
+        subCounts[sub]++;
+      }
+    });
+  });
+
+  const labels1 = [];
+  const data1 = [];
+  const colors1 = [];
+  for (const sub of SUBJECTS) {
+    if (subAverages[sub]) {
+      const avg = (subAverages[sub] / subCounts[sub]);
+      labels1.push(sub);
+      data1.push(Math.round(avg * 10) / 10);
+      colors1.push(avg >= PASS_THRESHOLD ? '#43a047' : '#e53935');
+    }
+  }
+
+  if (chart1) chart1.destroy();
+  const ctx1 = document.getElementById('subjectChart').getContext('2d');
+  chart1 = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels: labels1, datasets: [{ label: 'Average Mark', data: data1, backgroundColor: colors1, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'Subject-wise Average', font: { size: 13 } },
+        legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Marks' } } }
+    }
+  });
+
+  // Chart 2: Students per grade
+  const gradeCounts = {};
+  students.forEach(s => {
+    const g = getGradeLabel(s.grade);
+    gradeCounts[g] = (gradeCounts[g] || 0) + 1;
+  });
+  const labels2 = Object.keys(gradeCounts);
+  const data2 = Object.values(gradeCounts);
+  const colors2 = ['#1a237e','#283593','#3949ab','#3f51b5','#5c6bc0','#7986cb','#9fa8da','#c5cae9'];
+  if (chart2) chart2.destroy();
+  const ctx2 = document.getElementById('gradeChart').getContext('2d');
+  chart2 = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: labels2, datasets: [{ label: 'Students', data: data2, backgroundColor: colors2.slice(0,labels2.length), borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'Students per Grade', font: { size: 13 } },
+        legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Count' } } }
+    }
+  });
+
+  // Chart 3: Pass/Fail distribution
+  let passTotal = 0, failTotal = 0;
+  if (subjectFilter !== 'ALL') {
+    students.forEach(s => {
+      const m = parseMark(s[subjectFilter]);
+      if (!isNaN(m)) { if (m >= PASS_THRESHOLD) passTotal++; else failTotal++; }
+    });
+  } else {
+    students.forEach(s => {
+      const pc = getPassCount(s);
+      passTotal += pc.pass;
+      failTotal += (pc.total - pc.pass);
+    });
+  }
+  if (chart3) chart3.destroy();
+  const ctx3 = document.getElementById('passChart').getContext('2d');
+  chart3 = new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pass (' + PASS_THRESHOLD + '+)', 'Fail'],
+      datasets: [{ data: [passTotal, failTotal], backgroundColor: ['#43a047', '#e53935'] }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: subjectFilter !== 'ALL' ? subjectFilter + ' Pass/Fail' : 'Overall Pass/Fail', font: { size: 13 } },
+        legend: { position: 'bottom', labels: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function toggleStats() {
+  const s = document.getElementById('statsSection');
+  s.style.display = document.getElementById('showStats').checked ? 'flex' : 'none';
+}
+function toggleCharts() {
+  const s = document.getElementById('chartsSection');
+  if (document.getElementById('showCharts').checked) { s.style.display = 'flex'; updateCharts(allStudents, document.getElementById('subjectFilter').value); }
+  else s.style.display = 'none';
+}
+
+function showDetail(indexNo) {
+  const s = allStudents.find(st => st.indexNo === indexNo);
+  if (!s) return;
+  const popup = document.getElementById('studentPopup');
+  const content = document.getElementById('popupDynamic');
+  const subs = getSubjects(s);
+  let subjHtml = '';
+  let total = 0, count = 0;
+  subs.forEach(sub => {
+    const v = s[sub];
+    const m = parseMark(v);
+    let cls = '', markTxt = '';
+    if (v === undefined || v === '') { cls = 'a'; markTxt = '-'; }
+    else if (v.toString().toLowerCase() === 'ab') { cls = 'a'; markTxt = 'AB'; }
+    else if (!isNaN(m)) { total += m; count++; cls = m >= PASS_THRESHOLD ? 'p' : 'f'; markTxt = m; }
+    else { cls = 'a'; markTxt = '-'; }
+    subjHtml += '<div class="popup-subject-item ' + cls + '"><span class="subj">' + sub + '</span><span class="mark">' + markTxt + '</span></div>';
+  });
+  const avg = count > 0 ? (total / count).toFixed(1) : '-';
+  const pc = getPassCount(s);
+  content.innerHTML = '<span class="popup-close" onclick="closePopup()">&times;</span>' +
+    '<h2>' + escHtml(s.name) + '</h2>' +
+    '<div class="subtitle">Index: ' + escHtml(s.indexNo) + ' &middot; Grade: ' + getGradeLabel(s.grade) + ' &middot; Rank: ' + (s.RANK || '-') + '</div>' +
+    '<div class="popup-stats">' +
+      '<div class="popup-stat"><div class="val">' + total + '</div><div class="lbl">Total</div></div>' +
+      '<div class="popup-stat"><div class="val">' + avg + '</div><div class="lbl">Average</div></div>' +
+      '<div class="popup-stat"><div class="val">' + pc.pass + '/' + pc.total + '</div><div class="lbl">Pass Rate</div></div>' +
+      '<div class="popup-stat"><div class="val">' + count + '</div><div class="lbl">Subjects</div></div>' +
+    '</div>' +
+    '<div class="popup-subject-grid">' + subjHtml + '</div>' +
+    '<div style="margin-top: 16px; text-align: center;"><button onclick="printStudentReport(\'' + escHtml(s.indexNo) + '\')" style="padding: 8px 16px; cursor: pointer; border-radius: 6px; border: 1px solid #1a237e; background: #1a237e; color: white;">Print Report Card</button></div>';
+  popup.classList.add('active');
+}
+
+function printStudentReport(indexNo) {
+  const s = allStudents.find(st => st.indexNo === indexNo);
+  if (!s) return;
+  
+  let total = 0, count = 0;
+  getSubjects(s).forEach(sub => {
+    const m = parseMark(s[sub]);
+    if (!isNaN(m)) { total += m; count++; }
+  });
+  const avg = count > 0 ? (total / count).toFixed(1) : '-';
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  let content = '<html><head><title>Report Card - ' + s.name + '</title><style>body { font-family: sans-serif; padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } .header { text-align: center; margin-bottom: 20px; }</style></head><body>';
+  content += '<div class="header"><h1>MT/Kandenuwara Tamil Maha Vidyalaya</h1><h2>Report Card</h2></div>';
+  content += '<p><strong>Name:</strong> ' + s.name + '<br><strong>Index No:</strong> ' + s.indexNo + '<br><strong>Grade:</strong> ' + getGradeLabel(s.grade) + '</p>';
+  content += '<table><tr><th>Subject</th><th>Mark</th></tr>';
+  getSubjects(s).forEach(sub => { content += '<tr><td>' + sub + '</td><td>' + s[sub] + '</td></tr>'; });
+  content += '<tr><td><strong>Total</strong></td><td><strong>' + total + '</strong></td></tr>';
+  content += '<tr><td><strong>Average</strong></td><td><strong>' + avg + '</strong></td></tr>';
+  content += '</table></body></html>';
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+function closePopup() {
+  document.getElementById('studentPopup').classList.remove('active');
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePopup(); });
+document.addEventListener('click', function(e) { if (e.target.classList.contains('student-detail-popup')) closePopup(); });
+</script>
+
+<div class="student-detail-popup" id="studentPopup">
+  <div class="popup-content" id="popupDynamic">
+    <span class="popup-close" onclick="closePopup()">&times;</span>
+    <h2>Student</h2>
+    <div class="subtitle">Loading...</div>
+  </div>
+</div>
+
+</body>
+</html>
