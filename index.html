@@ -552,7 +552,7 @@ function renderTable(students, q, subjectFilter) {
     html += '<tr' + (abs ? ' class="absent"' : '') + '>';
     html += '<td>' + (idx + 1) + '</td>';
     html += '<td>' + escHtml(s.indexNo) + '</td>';
-    html += '<td style="text-align:left;font-weight:600;" class="name-cell"><a href="report_card.html?indexNo=' + escHtml(s.indexNo) + '" target="_blank">' + highlight(escHtml(s.name), q) + '</a></td>';
+    html += '<td style="text-align:left;font-weight:600;" class="name-cell" onclick="showDetail(\'' + escHtml(s.indexNo) + '\')">' + highlight(escHtml(s.name), q) + '</td>';
     html += '<td><span class="grade-badge">' + getGradeLabel(s.grade) + '</span></td>';
 
     // Rating column
@@ -775,8 +775,26 @@ function showDetail(indexNo) {
       '<div class="popup-stat"><div class="val">' + pc.pass + '/' + pc.total + '</div><div class="lbl">Pass Rate</div></div>' +
       '<div class="popup-stat"><div class="val">' + count + '</div><div class="lbl">Subjects</div></div>' +
     '</div>' +
-    '<div class="popup-subject-grid">' + subjHtml + '</div>';
+    '<div class="popup-subject-grid">' + subjHtml + '</div>' +
+    '<div style="margin-top: 16px; text-align: center;"><button onclick="printStudentReport(\'' + escHtml(s.indexNo) + '\')" style="padding: 8px 16px; cursor: pointer; border-radius: 6px; border: 1px solid #1a237e; background: #1a237e; color: white;">Print Report Card</button></div>';
   popup.classList.add('active');
+}
+
+function printStudentReport(indexNo) {
+  const s = allStudents.find(st => st.indexNo === indexNo);
+  if (!s) return;
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  let content = '<html><head><title>Report Card - ' + s.name + '</title><style>body { font-family: sans-serif; padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } .header { text-align: center; margin-bottom: 20px; }</style></head><body>';
+  content += '<div class="header"><h1>MT/Kandenuwara Tamil Maha Vidyalaya</h1><h2>Report Card</h2></div>';
+  content += '<p><strong>Name:</strong> ' + s.name + '<br><strong>Index No:</strong> ' + s.indexNo + '<br><strong>Grade:</strong> ' + getGradeLabel(s.grade) + '</p>';
+  content += '<table><tr><th>Subject</th><th>Mark</th></tr>';
+  getSubjects(s).forEach(sub => { content += '<tr><td>' + sub + '</td><td>' + s[sub] + '</td></tr>'; });
+  content += '<tr><td><strong>Total</strong></td><td><strong>' + s.TOTAL + '</strong></td></tr>';
+  content += '<tr><td><strong>Average</strong></td><td><strong>' + s.AVERAGE + '</strong></td></tr>';
+  content += '</table></body></html>';
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.print();
 }
 
 function closePopup() {
