@@ -339,16 +339,15 @@ td.name-cell { position: relative; }
 </div>
 
 <script>
-
-
-const SUBJECTS = ['TAMIL','MATHS','SCIENCE','ENGLISH','HISTORY','GEOGRAPHY','CIVICS','SAIVAM','RC','ISLAM','PTS','HPE','ART','MUSIC','SINHALA','IT','COMMERCE','TAMLL'];
+const SUBJECTS = ['TAMIL','MATHS','SCIENCE','ENGLISH','HISTORY','GEOGRAPHY','CIVICS','SAIVAM','RC','ISLAM','PTS','HPE','ART','MUSIC','SINHALA','IT','COMMERCE'];
 const PASS_THRESHOLD = 40;
 const GRADE_ORDER = {
   'GRADE6':1,
   'GRADE7A':2, 'GRADE7B':3,
   'GRADE8A':4,
   'GRADE9':5,
-  'GRADE10A':6, 'GRADE-10B':7
+  'GRADE10A':6, 'GRADE-10B':7,
+  'GRADE11':8, 'NW 10B':9
 };
 
 function getGradeLabel(g) {
@@ -358,7 +357,7 @@ function getGradeLabel(g) {
     'GRADE8A':'08A',
     'GRADE9':'09',
     'GRADE10A':'10A', 'GRADE-10B':'10B',
-    ' GRADE11':'11', 'NW 10B':'NW10B'
+    'GRADE11':'11', 'NW 10B':'NW10B'
   };
   return m[g] || g;
 }
@@ -372,7 +371,7 @@ function getSubjects(s) {
 }
 
 function parseMark(v) {
-  if (v === undefined || v === null || v === '' || v.toLowerCase() === 'ab') return NaN;
+  if (v === undefined || v === null || v === '' || v.toString().toLowerCase() === 'ab') return NaN;
   return parseFloat(v);
 }
 
@@ -421,7 +420,7 @@ function handleLogout() {
   document.getElementById('loginError').style.display = 'none';
 }
 
-// Session timeout � 5 minutes (300 seconds)
+// Session timeout - 5 minutes (300 seconds)
 let sessionTimerId = null;
 let sessionCountdown = 300;
 const SESSION_DURATION = 300;
@@ -625,7 +624,7 @@ function updateStats(students) {
   section.innerHTML = '';
   const cards = [
     { num: total, lbl: 'Students' },
-    { num: total > 0 ? (totalMarks / markCount).toFixed(1) : 0, lbl: 'Avg Marks' },
+    { num: markCount > 0 ? (totalMarks / markCount).toFixed(1) : 0, lbl: 'Avg Marks' },
     { num: subjCount > 0 ? (passCount / subjCount * 100).toFixed(1) + '%' : '0%', lbl: 'Pass Rate' },
     { num: total > 0 ? (markCount / total).toFixed(1) : 0, lbl: 'Avg Subjects/Student' },
   ];
@@ -783,14 +782,23 @@ function showDetail(indexNo) {
 function printStudentReport(indexNo) {
   const s = allStudents.find(st => st.indexNo === indexNo);
   if (!s) return;
+  
+  // Calculate values dynamically
+  let total = 0, count = 0;
+  getSubjects(s).forEach(sub => {
+    const m = parseMark(s[sub]);
+    if (!isNaN(m)) { total += m; count++; }
+  });
+  const avg = count > 0 ? (total / count).toFixed(1) : '-';
+
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   let content = '<html><head><title>Report Card - ' + s.name + '</title><style>body { font-family: sans-serif; padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } .header { text-align: center; margin-bottom: 20px; }</style></head><body>';
   content += '<div class="header"><h1>MT/Kandenuwara Tamil Maha Vidyalaya</h1><h2>Report Card</h2></div>';
   content += '<p><strong>Name:</strong> ' + s.name + '<br><strong>Index No:</strong> ' + s.indexNo + '<br><strong>Grade:</strong> ' + getGradeLabel(s.grade) + '</p>';
   content += '<table><tr><th>Subject</th><th>Mark</th></tr>';
   getSubjects(s).forEach(sub => { content += '<tr><td>' + sub + '</td><td>' + s[sub] + '</td></tr>'; });
-  content += '<tr><td><strong>Total</strong></td><td><strong>' + s.TOTAL + '</strong></td></tr>';
-  content += '<tr><td><strong>Average</strong></td><td><strong>' + s.AVERAGE + '</strong></td></tr>';
+  content += '<tr><td><strong>Total</strong></td><td><strong>' + total + '</strong></td></tr>';
+  content += '<tr><td><strong>Average</strong></td><td><strong>' + avg + '</strong></td></tr>';
   content += '</table></body></html>';
   printWindow.document.write(content);
   printWindow.document.close();
@@ -814,4 +822,3 @@ document.addEventListener('click', function(e) { if (e.target.classList.contains
 
 </body>
 </html>
-
