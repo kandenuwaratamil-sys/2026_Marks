@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MT/Kandenuwara Tamil Maha Vidyalaya - 2026 Marks Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="./data.js"></script>
+<script src="data.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -339,15 +339,16 @@ td.name-cell { position: relative; }
 </div>
 
 <script>
-const SUBJECTS = ['TAMIL','MATHS','SCIENCE','ENGLISH','HISTORY','GEOGRAPHY','CIVICS','SAIVAM','RC','ISLAM','PTS','HPE','ART','MUSIC','SINHALA','IT','COMMERCE'];
+
+
+const SUBJECTS = ['TAMIL','MATHS','SCIENCE','ENGLISH','HISTORY','GEOGRAPHY','CIVICS','SAIVAM','RC','ISLAM','PTS','HPE','ART','MUSIC','SINHALA','IT','COMMERCE','TAMLL'];
 const PASS_THRESHOLD = 40;
 const GRADE_ORDER = {
   'GRADE6':1,
   'GRADE7A':2, 'GRADE7B':3,
   'GRADE8A':4,
   'GRADE9':5,
-  'GRADE10A':6, 'GRADE-10B':7,
-  'GRADE11':8, 'NW 10B':9
+  'GRADE10A':6, 'GRADE-10B':7
 };
 
 function getGradeLabel(g) {
@@ -357,13 +358,12 @@ function getGradeLabel(g) {
     'GRADE8A':'08A',
     'GRADE9':'09',
     'GRADE10A':'10A', 'GRADE-10B':'10B',
-    'GRADE11':'11', 'NW 10B':'NW10B'
+    ' GRADE11':'11', 'NW 10B':'NW10B'
   };
   return m[g] || g;
 }
 
 function getGrades() {
-  if (typeof allStudents === 'undefined') return [];
   const grades = [...new Set(allStudents.map(s => s.grade))];
   return grades.sort((a, b) => (GRADE_ORDER[a] || 99) - (GRADE_ORDER[b] || 99));
 }
@@ -372,7 +372,7 @@ function getSubjects(s) {
 }
 
 function parseMark(v) {
-  if (v === undefined || v === null || v === '' || v.toString().toLowerCase() === 'ab') return NaN;
+  if (v === undefined || v === null || v === '' || v.toLowerCase() === 'ab') return NaN;
   return parseFloat(v);
 }
 
@@ -421,7 +421,7 @@ function handleLogout() {
   document.getElementById('loginError').style.display = 'none';
 }
 
-// Session timeout
+// Session timeout � 5 minutes (300 seconds)
 let sessionTimerId = null;
 let sessionCountdown = 300;
 const SESSION_DURATION = 300;
@@ -469,16 +469,8 @@ function updateTimerDisplay() {
   }
 })();
 
-// Load data safely with check mechanism for online deployments
+// Load data into select
 (function init() {
-  const container = document.getElementById('tableContainer');
-  
-  // Fail-safe protection if data.js is missing or failing on GitHub Pages
-  if (typeof allStudents === 'undefined') {
-    container.innerHTML = '<div class="no-result" style="color: #b71c1c; font-weight: bold;">&#x26A0; Error: Could not find "allStudents" data profile array. Verify that data.js exists inside your GitHub folder repository and is properly spelled.</div>';
-    return;
-  }
-
   const gf = document.getElementById('gradeFilter');
   const grades = getGrades();
   grades.forEach(g => {
@@ -498,8 +490,6 @@ function updateTimerDisplay() {
 })();
 
 function filterData() {
-  if (typeof allStudents === 'undefined') return;
-
   const q = document.getElementById('search').value.trim().toLowerCase();
   const grade = document.getElementById('gradeFilter').value;
   const subject = document.getElementById('subjectFilter').value;
@@ -562,7 +552,7 @@ function renderTable(students, q, subjectFilter) {
     html += '<tr' + (abs ? ' class="absent"' : '') + '>';
     html += '<td>' + (idx + 1) + '</td>';
     html += '<td>' + escHtml(s.indexNo) + '</td>';
-    html += '<td style="text-align:left;font-weight:600;" class="name-cell" onclick="showDetail(\'' + escHtml(s.indexNo) + '\')">' + highlight(escHtml(s.name), q) + '</td>';
+    html += '<td style="text-align:left;font-weight:600;" class="name-cell">' + highlight(escHtml(s.name), q) + '</td>';
     html += '<td><span class="grade-badge">' + getGradeLabel(s.grade) + '</span></td>';
 
     // Rating column
@@ -635,7 +625,7 @@ function updateStats(students) {
   section.innerHTML = '';
   const cards = [
     { num: total, lbl: 'Students' },
-    { num: markCount > 0 ? (totalMarks / markCount).toFixed(1) : 0, lbl: 'Avg Marks' },
+    { num: total > 0 ? (totalMarks / markCount).toFixed(1) : 0, lbl: 'Avg Marks' },
     { num: subjCount > 0 ? (passCount / subjCount * 100).toFixed(1) + '%' : '0%', lbl: 'Pass Rate' },
     { num: total > 0 ? (markCount / total).toFixed(1) : 0, lbl: 'Avg Subjects/Student' },
   ];
@@ -714,7 +704,7 @@ function updateCharts(students, subjectFilter) {
     }
   });
 
-  // Chart 3: Pass/Fail distribution
+  // Chart 3: Pass/Fail distribution (filtered by subject if selected)
   let passTotal = 0, failTotal = 0;
   if (subjectFilter !== 'ALL') {
     students.forEach(s => {
@@ -793,22 +783,14 @@ function showDetail(indexNo) {
 function printStudentReport(indexNo) {
   const s = allStudents.find(st => st.indexNo === indexNo);
   if (!s) return;
-  
-  let total = 0, count = 0;
-  getSubjects(s).forEach(sub => {
-    const m = parseMark(s[sub]);
-    if (!isNaN(m)) { total += m; count++; }
-  });
-  const avg = count > 0 ? (total / count).toFixed(1) : '-';
-
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   let content = '<html><head><title>Report Card - ' + s.name + '</title><style>body { font-family: sans-serif; padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } .header { text-align: center; margin-bottom: 20px; }</style></head><body>';
   content += '<div class="header"><h1>MT/Kandenuwara Tamil Maha Vidyalaya</h1><h2>Report Card</h2></div>';
   content += '<p><strong>Name:</strong> ' + s.name + '<br><strong>Index No:</strong> ' + s.indexNo + '<br><strong>Grade:</strong> ' + getGradeLabel(s.grade) + '</p>';
   content += '<table><tr><th>Subject</th><th>Mark</th></tr>';
   getSubjects(s).forEach(sub => { content += '<tr><td>' + sub + '</td><td>' + s[sub] + '</td></tr>'; });
-  content += '<tr><td><strong>Total</strong></td><td><strong>' + total + '</strong></td></tr>';
-  content += '<tr><td><strong>Average</strong></td><td><strong>' + avg + '</strong></td></tr>';
+  content += '<tr><td><strong>Total</strong></td><td><strong>' + s.TOTAL + '</strong></td></tr>';
+  content += '<tr><td><strong>Average</strong></td><td><strong>' + s.AVERAGE + '</strong></td></tr>';
   content += '</table></body></html>';
   printWindow.document.write(content);
   printWindow.document.close();
@@ -832,3 +814,4 @@ document.addEventListener('click', function(e) { if (e.target.classList.contains
 
 </body>
 </html>
+
